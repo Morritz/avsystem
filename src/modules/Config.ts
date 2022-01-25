@@ -1,8 +1,8 @@
-import { BasicScheduler, Scheduler } from "./Scheduler";
+import { FCFSScheduler, Scheduler } from "./Scheduler";
 
 export class Config {
   public loadScheduler(): Scheduler {
-    return new BasicScheduler();
+    return new FCFSScheduler();
   }
   public getElevatorsCount(): number {
     return 16;
