@@ -21,7 +21,7 @@ export class Elevator {
 
   constructor(systemReference: System) {
     this.systemReference = systemReference;
-    this.currentFloor = 15;
+    this.currentFloor = 0;
     this.requestedFloor = null;
     this.direction = ElevatorDirection.Dormant;
     this.doorState = DoorState.Closed;

@@ -31,10 +31,19 @@ export class System {
     this.queue.push(floor);
   }
 
+  private checkIfRequestDoesntExist(floor: number): boolean {
+    for (const request of this.queue) {
+      if (request === floor) return false;
+    }
+    for (const elevator of this.elevators) {
+      if (elevator.getRequestedFloor() === floor) return false;
+    }
+    return true;
+  }
   public call(floor: number) {
     try {
       this.floorGuard(floor);
-      this.addRequestToQueue(floor);
+      if (this.checkIfRequestDoesntExist(floor)) this.addRequestToQueue(floor);
     } catch (e) {
       console.log("Wrong floor requested");
     }
