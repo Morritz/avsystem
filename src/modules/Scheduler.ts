@@ -1,8 +1,8 @@
-interface Scheduler {
+export interface Scheduler {
   scheduleElevators(): void;
 }
 
-class BasicScheduler implements Scheduler {
+export class BasicScheduler implements Scheduler {
   scheduleElevators(): void {
     return;
   }
