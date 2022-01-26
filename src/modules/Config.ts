@@ -9,17 +9,24 @@ schema
   maxFloor: 16
 }
 */
+
 export class Config {
   private parsedConfig: any;
-  constructor() {
-    this.parsedConfig = {};
+  constructor(path: string) {
+    this.parsedConfig = this.loadFromFile("./config.json");
+  }
+
+  private loadFromFile(path: string) {
+    let result = {};
     try {
-      const jsonString = fs.readFileSync("./config.json");
-      this.parsedConfig = JSON.parse(jsonString.toString());
+      const jsonString = fs.readFileSync(path);
+      result = JSON.parse(jsonString.toString());
     } catch (err) {
       console.log(err);
     }
+    return result;
   }
+
   public loadScheduler(): Scheduler {
     const str = this.parsedConfig.scheduler;
     if (typeof str === "string") {
