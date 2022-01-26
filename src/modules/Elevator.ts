@@ -30,17 +30,21 @@ export class Elevator {
     setInterval(() => this.lifecycle(), 3000);
   }
 
+  private setDirectionBasedOnRequestedFloor(): void {
+    if (this.requestedFloor) {
+      if (this.currentFloor < this.requestedFloor)
+        this.direction = ElevatorDirection.Up;
+      else if (this.currentFloor > this.requestedFloor)
+        this.direction = ElevatorDirection.Down;
+      else this.direction = ElevatorDirection.Dormant;
+    }
+  }
   // Returns true if dispatch was succesfully acquired
   public dispatchFloor(floor: number): boolean {
     if (this.doorState !== DoorState.Stuck) {
       this.systemReference.floorGuard(floor);
-
-      if (this.currentFloor < floor) this.direction = ElevatorDirection.Up;
-      else if (this.currentFloor > floor)
-        this.direction = ElevatorDirection.Down;
-      else this.direction = ElevatorDirection.Dormant;
-
       this.requestedFloor = floor;
+      this.setDirectionBasedOnRequestedFloor();
       return true;
     }
     return false;
@@ -132,7 +136,7 @@ export class Elevator {
     }
   }
 
-  public getCurrentFloor(): FloorRequest {
+  public getCurrentFloor(): number {
     return this.currentFloor;
   }
 

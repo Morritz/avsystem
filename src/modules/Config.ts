@@ -1,4 +1,8 @@
-import { FCFSScheduler, Scheduler } from "./Scheduler";
+import {
+  FCFSScheduler,
+  NearestElevatorFCFSScheduler,
+  Scheduler,
+} from "./Scheduler";
 import fs from "fs";
 
 /*
@@ -33,6 +37,8 @@ export class Config {
       switch (str) {
         case "FCFS":
           return new FCFSScheduler();
+        case "NearestElevatorFCFS":
+          return new NearestElevatorFCFSScheduler();
       }
     }
     return new FCFSScheduler();

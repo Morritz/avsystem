@@ -40,7 +40,9 @@ export class System {
 
   private setupServer(): void {
     this.app.get("/call/:id", (req: express.Request, res: express.Response) => {
-      this.call(Number(req.params.id));
+      const requestedFloor = parseInt(req.params.id);
+      if (Number.isInteger(requestedFloor)) this.call(requestedFloor);
+      res.sendStatus(200);
     });
 
     this.server = this.app.listen(9999);
