@@ -34,6 +34,7 @@ export class Elevator {
   public dispatchFloor(floor: number): boolean {
     if (this.doorState !== DoorState.Stuck) {
       this.systemReference.floorGuard(floor);
+
       if (this.currentFloor < floor) this.direction = ElevatorDirection.Up;
       else if (this.currentFloor > floor)
         this.direction = ElevatorDirection.Down;
@@ -111,6 +112,7 @@ export class Elevator {
     this.clearFlagsRelatedToMovement();
     this.tryToOpenDoor();
   }
+
   private makeMove(): void {
     if (this.currentFloor === this.requestedFloor) {
       this.arrivalState();
