@@ -1,7 +1,7 @@
 import { Elevator, ElevatorDirection } from "./Elevator";
 import { FloorRequest } from "./System";
 
-interface Scheduler {
+export interface Scheduler {
   scheduleElevators(elevators: Elevator[], queue: FloorRequest[]): void;
 }
 
