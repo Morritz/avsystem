@@ -1,0 +1,5 @@
+{
+  "scheduler": "FCFS",
+  "elevators": 24,
+  "maxFloor": 10
+}
