@@ -120,20 +120,22 @@ export class Elevator {
   }
 
   private makeMove(): void {
-    if (this.currentFloor === this.requestedFloor) {
-      this.arrivalState();
-      return;
-    }
-    if (this.requestedFloor != null) {
-      switch (this.direction) {
-        case ElevatorDirection.Up:
-          this.moveUp();
-          return;
-        case ElevatorDirection.Down:
-          this.moveDown();
-          return;
-        default:
-          return;
+    if (this.doorState === DoorState.Closed) {
+      if (this.currentFloor === this.requestedFloor) {
+        this.arrivalState();
+        return;
+      }
+      if (this.requestedFloor != null) {
+        switch (this.direction) {
+          case ElevatorDirection.Up:
+            this.moveUp();
+            return;
+          case ElevatorDirection.Down:
+            this.moveDown();
+            return;
+          default:
+            return;
+        }
       }
     }
   }
@@ -163,7 +165,7 @@ export class Elevator {
   }
 
   private tryToPopFromRequests(): void {
-    if (this.requests.length > 0 && this.requestedFloor === null) {
+    if (this.requests.length > 0 && this.getStandby()) {
       // FCFS
       // To do: closest && prefer the same direction
       const shifted = this.requests.shift();
@@ -172,7 +174,7 @@ export class Elevator {
   }
 
   public lifecycle(): void {
-    if (this.doorState === DoorState.Closed) this.makeMove();
+    this.makeMove();
     this.tryToPopFromRequests();
   }
 }
