@@ -94,9 +94,20 @@ export class Elevator {
     }
   }
 
-  private arrivalState(): void {
+  private setStandby() {
     this.direction = ElevatorDirection.Dormant;
     this.requestedFloor = null;
+  }
+
+  public getStandby() {
+    return (
+      this.direction === ElevatorDirection.Dormant &&
+      this.requestedFloor === null
+    );
+  }
+
+  private arrivalState(): void {
+    this.setStandby();
     this.tryToOpenDoor();
   }
   private makeMove(): void {
