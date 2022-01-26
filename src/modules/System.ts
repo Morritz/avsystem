@@ -39,16 +39,32 @@ export class System {
   }
 
   private setupServer(): void {
-    this.app.get("/call/:id", (req: express.Request, res: express.Response) => {
-      const requestedFloor = parseInt(req.params.id);
-      if (Number.isInteger(requestedFloor)) this.call(requestedFloor);
-      res.sendStatus(200);
-    });
+    this.app.get(
+      "/call/:floorId",
+      (req: express.Request, res: express.Response) => {
+        const requestedFloor = parseInt(req.params.floorId);
+        if (Number.isInteger(requestedFloor)) this.call(requestedFloor);
+        res.sendStatus(200);
+      }
+    );
+    this.app.get(
+      "/request/:elevatorId/:floorId",
+      (req: express.Request, res: express.Response) => {
+        const requestedFloor = parseInt(req.params.floorId);
+        const elevatorId = parseInt(req.params.elevatorId);
+        if (Number.isInteger(elevatorId) && Number.isInteger(requestedFloor)) {
+          if (elevatorId in this.elevators) {
+            this.elevators[elevatorId].addRequest(requestedFloor);
+          }
+        }
+        res.sendStatus(200);
+      }
+    );
 
     this.server = this.app.listen(9999);
   }
 
-  private addRequestToQueue(floor: number): void {
+  private addCallToQueue(floor: number): void {
     this.queue.push(floor);
   }
 
@@ -77,9 +93,15 @@ export class System {
       if (readyElevator) {
         readyElevator.tryToOpenDoor();
       } else if (this.checkIfRequestDoesntExist(floor))
-        this.addRequestToQueue(floor);
+        this.addCallToQueue(floor);
     } catch (e) {
       console.log("Wrong floor requested");
+    }
+  }
+
+  public request(elevatorId: number, floor: number): void {
+    if (elevatorId in this.elevators) {
+      this.elevators[elevatorId].addRequest(floor);
     }
   }
   public scheduleElevators(): void {
@@ -98,7 +120,12 @@ export class System {
     if (this.server && this.server.listening) {
       const addr = this.server.address() as AddressInfo;
       console.log(`‍💻 REST Server: ${addr.address}:${addr.port}`);
-      console.log("✨ Usage: GET /call/:id");
+      console.log(
+        "✨ Usage: GET /call/:floorId - call elevator (a.k.a outside button)"
+      );
+      console.log(
+        "👉 Usage: GET /request/:elevatorId/:floorId - request elevator to one floor (a.k.a inside button)"
+      );
     }
     const table = [];
     for (const [id, elevator] of this.elevators.entries()) {
@@ -108,6 +135,7 @@ export class System {
         currentFloor: elevator.getCurrentFloor(),
         requestedFloor: elevator.getRequestedFloor(),
         doorState: elevator.getReadableDoorState(),
+        requests: elevator.getRequests(),
       });
     }
     console.table(table);

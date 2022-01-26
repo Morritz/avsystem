@@ -18,6 +18,7 @@ export class Elevator {
   private direction: ElevatorDirection;
   private systemReference: System;
   private doorState: DoorState;
+  private readonly requests: FloorRequest[];
 
   constructor(systemReference: System) {
     this.systemReference = systemReference;
@@ -25,6 +26,7 @@ export class Elevator {
     this.requestedFloor = null;
     this.direction = ElevatorDirection.Dormant;
     this.doorState = DoorState.Closed;
+    this.requests = [];
 
     // 1 tick = 1 floor distance
     setInterval(() => this.lifecycle(), 3000);
@@ -148,7 +150,29 @@ export class Elevator {
     return this.direction;
   }
 
+  public addRequest(floor: number): void {
+    this.systemReference.floorGuard(floor);
+
+    if (!this.requests.includes(floor)) {
+      this.requests.push(floor);
+    }
+  }
+
+  public getRequests(): FloorRequest[] {
+    return this.requests;
+  }
+
+  private tryToPopFromRequests(): void {
+    if (this.requests.length > 0 && this.requestedFloor === null) {
+      // FCFS
+      // To do: closest && prefer the same direction
+      const shifted = this.requests.shift();
+      if (shifted) this.dispatchFloor(shifted);
+    }
+  }
+
   public lifecycle(): void {
-    this.makeMove();
+    if (this.doorState === DoorState.Closed) this.makeMove();
+    this.tryToPopFromRequests();
   }
 }
