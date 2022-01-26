@@ -1,11 +1,8 @@
 import { Elevator, ElevatorDirection } from "./Elevator";
 import { FloorRequest } from "./System";
 
-export abstract class Scheduler {
-  abstract scheduleElevators(
-    elevators: Elevator[],
-    queue: FloorRequest[]
-  ): void;
+interface Scheduler {
+  scheduleElevators(elevators: Elevator[], queue: FloorRequest[]): void;
 }
 
 export class FCFSScheduler implements Scheduler {
