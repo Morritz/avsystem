@@ -27,7 +27,7 @@ export class Elevator {
     this.doorState = DoorState.Closed;
 
     // 1 tick = 1 floor distance
-    setInterval(() => this.lifecycle(), 1000);
+    setInterval(() => this.lifecycle(), 3000);
   }
 
   // Returns true if dispatch was succesfully acquired
@@ -79,7 +79,7 @@ export class Elevator {
     this.move(-1);
   }
 
-  private tryToOpenDoor(): void {
+  public tryToOpenDoor(): void {
     if (this.doorState !== DoorState.Stuck) {
       this.doorState = DoorState.Open;
       setTimeout(() => {
@@ -94,7 +94,7 @@ export class Elevator {
     }
   }
 
-  private setStandby() {
+  private clearFlagsRelatedToMovement() {
     this.direction = ElevatorDirection.Dormant;
     this.requestedFloor = null;
   }
@@ -102,12 +102,13 @@ export class Elevator {
   public getStandby() {
     return (
       this.direction === ElevatorDirection.Dormant &&
-      this.requestedFloor === null
+      this.requestedFloor === null &&
+      this.doorState === DoorState.Closed
     );
   }
 
   private arrivalState(): void {
-    this.setStandby();
+    this.clearFlagsRelatedToMovement();
     this.tryToOpenDoor();
   }
   private makeMove(): void {

@@ -3,6 +3,10 @@ import { Elevator } from "./Elevator";
 import { Scheduler } from "./Scheduler";
 import util from "util";
 
+import http from "http";
+import express from "express";
+import { AddressInfo } from "net";
+
 export type FloorRequest = number | null;
 
 export class System {
@@ -11,6 +15,9 @@ export class System {
   private readonly elevators: Elevator[];
   private readonly scheduler: Scheduler;
   private readonly queue: FloorRequest[];
+
+  private readonly app: express.Application;
+  private server: http.Server | undefined;
 
   constructor(configRef: Config) {
     this.config = configRef;
@@ -25,6 +32,18 @@ export class System {
     this.maxFloor = this.config.getMaxFloor();
 
     this.queue = new Array<FloorRequest>();
+
+    this.app = express();
+
+    this.setupServer();
+  }
+
+  private setupServer(): void {
+    this.app.get("/call/:id", (req: express.Request, res: express.Response) => {
+      this.call(Number(req.params.id));
+    });
+
+    this.server = this.app.listen(9999);
   }
 
   private addRequestToQueue(floor: number): void {
@@ -40,10 +59,23 @@ export class System {
     }
     return true;
   }
+
+  private checkIfThereIsReadyElevator(floor: number): Elevator | null {
+    for (const elevator of this.elevators) {
+      if (elevator.getCurrentFloor() === floor && elevator.getStandby())
+        return elevator;
+    }
+    return null;
+  }
+
   public call(floor: number) {
     try {
       this.floorGuard(floor);
-      if (this.checkIfRequestDoesntExist(floor)) this.addRequestToQueue(floor);
+      const readyElevator = this.checkIfThereIsReadyElevator(floor);
+      if (readyElevator) {
+        readyElevator.tryToOpenDoor();
+      } else if (this.checkIfRequestDoesntExist(floor))
+        this.addRequestToQueue(floor);
     } catch (e) {
       console.log("Wrong floor requested");
     }
@@ -61,6 +93,11 @@ export class System {
   public displayStatus(): void {
     console.clear();
     util.log("Current status of the system.");
+    if (this.server && this.server.listening) {
+      const addr = this.server.address() as AddressInfo;
+      console.log(`‍💻 REST Server: ${addr.address}:${addr.port}`);
+      console.log("✨ Usage: GET /call/:id");
+    }
     const table = [];
     for (const [id, elevator] of this.elevators.entries()) {
       table.push({
